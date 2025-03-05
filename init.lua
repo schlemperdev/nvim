@@ -33,11 +33,11 @@ vim.opt.scrolloff = 10
 -- Key mappings: General
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>') -- Clear search highlights
 
--- Key mappings: Disable arrow keys
-vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>') -- Disable left arrow key
-vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>') -- Disable right arrow key
-vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>') -- Disable up arrow key
-vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>') -- Disable down arrow key
+-- Key mappings: Disable arrow keys LDUR
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 
 -- Key mappings: Window navigation
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
@@ -60,7 +60,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
-
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -75,15 +74,16 @@ vim.opt.rtp:prepend(lazypath)
 
 -- [[ Configure and install plugins ]]
 -- NOTE: Here is where you install your plugins.
---
+
 require('lazy').setup({
   opts = {
     install = { colorscheme = { 'catppuccin' } },
   },
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
--- Adds git related signs to the gutter, as well as utilities for managing changes
-  {'lewis6991/gitsigns.nvim',
+  -- Adds git related signs to the gutter, as well as utilities for managing changes
+  {
+    'lewis6991/gitsigns.nvim',
     opts = {
       signs = {
         add = { text = '+' },
@@ -147,70 +147,69 @@ require('lazy').setup({
     },
   },
 
-{ -- Fuzzy Finder (files, lsp, etc)
-  'nvim-telescope/telescope.nvim',
-  event = 'VimEnter',
-  branch = '0.1.x',
-  dependencies = {
-    'nvim-lua/plenary.nvim',
-    { -- Telescope FZF native extension (requires 'make' to build)
-      'nvim-telescope/telescope-fzf-native.nvim',
-      build = 'make',
-      cond = function()
-        return vim.fn.executable 'make' == 1
-      end,
-    },
-    { 'nvim-telescope/telescope-ui-select.nvim' },
-    { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
-  },
-  config = function()
-
-    -- Configure Telescope extensions
-    extensions = {
-      ['ui-select'] = {
-        require('telescope.themes').get_dropdown(),
+  { -- Fuzzy Finder (files, lsp, etc)
+    'nvim-telescope/telescope.nvim',
+    event = 'VimEnter',
+    branch = '0.1.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      { -- Telescope FZF native extension (requires 'make' to build)
+        'nvim-telescope/telescope-fzf-native.nvim',
+        build = 'make',
+        cond = function()
+          return vim.fn.executable 'make' == 1
+        end,
       },
-    }
-
-    -- Enable Telescope extensions if installed
-    pcall(require('telescope').load_extension, 'fzf')
-    pcall(require('telescope').load_extension, 'ui-select')
-
-    -- Key mappings for Telescope searches
-    local builtin = require 'telescope.builtin'
-    vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
-    vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-    vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
-    vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-    vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-    vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
-    vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
-    vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-    vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-    vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-
-    -- Custom search in current buffer with additional configuration
-    vim.keymap.set('n', '<leader>/', function()
-      builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-        winblend = 10,
-        previewer = false,
-      })
-    end, { desc = '[/] Fuzzily search in current buffer' })
-
-    -- Live grep in open files with custom title
-    vim.keymap.set('n', '<leader>s/', function()
-      builtin.live_grep {
-        grep_open_files = true,
-        prompt_title = 'Live Grep in Open Files',
+      { 'nvim-telescope/telescope-ui-select.nvim' },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+    },
+    config = function()
+      -- Configure Telescope extensions
+      extensions = {
+        ['ui-select'] = {
+          require('telescope.themes').get_dropdown(),
+        },
       }
-    end, { desc = '[S]earch [/] in Open Files' })
 
-    -- Search Neovim configuration files
-    vim.keymap.set('n', '<leader>sn', function()
-      builtin.find_files { cwd = vim.fn.stdpath 'config' }
-    end, { desc = '[S]earch [N]eovim files' })
-  end,
-},
+      -- Enable Telescope extensions if installed
+      pcall(require('telescope').load_extension, 'fzf')
+      pcall(require('telescope').load_extension, 'ui-select')
+
+      -- Key mappings for Telescope searches
+      local builtin = require 'telescope.builtin'
+      vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
+      vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
+      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
+      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
+      vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
+      vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      -- Custom search in current buffer with additional configuration
+      vim.keymap.set('n', '<leader>/', function()
+        builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+          winblend = 10,
+          previewer = false,
+        })
+      end, { desc = '[/] Fuzzily search in current buffer' })
+
+      -- Live grep in open files with custom title
+      vim.keymap.set('n', '<leader>s/', function()
+        builtin.live_grep {
+          grep_open_files = true,
+          prompt_title = 'Live Grep in Open Files',
+        }
+      end, { desc = '[S]earch [/] in Open Files' })
+
+      -- Search Neovim configuration files
+      vim.keymap.set('n', '<leader>sn', function()
+        builtin.find_files { cwd = vim.fn.stdpath 'config' }
+      end, { desc = '[S]earch [N]eovim files' })
+    end,
+  },
 
   -- LSP Plugins
   {
@@ -245,28 +244,28 @@ require('lazy').setup({
     },
 
     config = function()
-    -- LSP: Language Server Protocol (communication between editor and language tools)
-    -- LSP provides features like Go to Definition, Autocompletion, Symbol Search, etc.
-    
-    -- Function runs on LSP attach to configure buffer-specific settings
-    vim.api.nvim_create_autocmd('LspAttach', {
-      group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
-      callback = function(event)
-        local map = function(keys, func, desc, mode)
-          mode = mode or 'n'
-          vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
-        end
+      -- LSP: Language Server Protocol (communication between editor and language tools)
+      -- LSP provides features like Go to Definition, Autocompletion, Symbol Search, etc.
 
-        -- Key mappings for LSP actions
-        map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-        map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-        map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-        map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-        map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-        map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-        map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-        map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
-        map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+      -- Function runs on LSP attach to configure buffer-specific settings
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
+        callback = function(event)
+          local map = function(keys, func, desc, mode)
+            mode = mode or 'n'
+            vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
+          end
+
+          -- Key mappings for LSP actions
+          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+          map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+          map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
+          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
@@ -306,8 +305,7 @@ require('lazy').setup({
             })
           end
 
-
-        -- Toggle inlay hints if supported by LSP
+          -- Toggle inlay hints if supported by LSP
           if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
             map('<leader>th', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
@@ -369,7 +367,7 @@ require('lazy').setup({
       vim.list_extend(ensure_installed, {
         'stylua',
         'isort',
-        'black'
+        'black',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -518,68 +516,65 @@ require('lazy').setup({
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
-{ -- Various small plugins/modules
-  -- More details: https://github.com/echasnovski/mini.nvim
-  'echasnovski/mini.nvim',
-  
-  config = function()
-    -- Better Around/Inside textobjects
-    require('mini.ai').setup { n_lines = 500 }
-    -- Add/delete/replace surroundings
-    require('mini.surround').setup()
+  { -- Various small plugins/modules
+    -- More details: https://github.com/echasnovski/mini.nvim
+    'echasnovski/mini.nvim',
 
-    -- Simple statusline setup
-    local statusline = require 'mini.statusline'
-    statusline.setup { use_icons = vim.g.have_nerd_font }
+    config = function()
+      -- Better Around/Inside textobjects
+      require('mini.ai').setup { n_lines = 500 }
+      -- Add/delete/replace surroundings
+      require('mini.surround').setup()
 
-    -- Customize location display: LINE:COLUMN
-    statusline.section_location = function()
-      return '%2l:%-2v'
-    end
-  end,
-},
-{ -- Highlight, edit, and navigate code
-  'nvim-treesitter/nvim-treesitter',
-  build = ':TSUpdate',
-  main = 'nvim-treesitter.configs',
-  opts = {
-    ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'markdown' },
-    auto_install = true,
-    highlight = {
-      enable = true,
-      -- Some languages depend on Vim's regex highlighting system for indent rules.
-      additional_vim_regex_highlighting = { 'ruby' },
-    },
-    indent = { enable = true, disable = { 'ruby' } },
+      -- Simple statusline setup
+      local statusline = require 'mini.statusline'
+      statusline.setup { use_icons = vim.g.have_nerd_font }
+
+      -- Customize location display: LINE:COLUMN
+      statusline.section_location = function()
+        return '%2l:%-2v'
+      end
+    end,
   },
-  -- Explore extra modules:
-  --    - Incremental selection: `:help nvim-treesitter-incremental-selection-mod`
-  --    - Show context: https://github.com/nvim-treesitter/nvim-treesitter-context
-  --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-},
+  { -- Highlight, edit, and navigate code
+    'nvim-treesitter/nvim-treesitter',
+    build = ':TSUpdate',
+    main = 'nvim-treesitter.configs',
+    opts = {
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'markdown' },
+      auto_install = true,
+      highlight = {
+        enable = true,
+        -- Some languages depend on Vim's regex highlighting system for indent rules.
+        additional_vim_regex_highlighting = { 'ruby' },
+      },
+      indent = { enable = true, disable = { 'ruby' } },
+    },
+    -- Explore extra modules:
+    --    - Incremental selection: `:help nvim-treesitter-incremental-selection-mod`
+    --    - Show context: https://github.com/nvim-treesitter/nvim-treesitter-context
+    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
 
--- [-- NEXT STEPS --]
--- These comments apply only if you’ve downloaded the Kickstart repo, not just copied the init.lua.
--- If you need the files, download them from the repo and place them correctly.
+  -- [-- NEXT STEPS --]
+  -- These comments apply only if you’ve downloaded the Kickstart repo, not just copied the init.lua.
+  -- If you need the files, download them from the repo and place them correctly.
 
--- Next step: Add/configure plugins for Kickstart
--- Uncomment any plugin below to enable (restart nvim after).
-require 'kickstart.plugins.autopairs'
--- require 'kickstart.plugins.debug'
--- require 'kickstart.plugins.indent_line'
--- require 'kickstart.plugins.lint'
--- require 'kickstart.plugins.neo-tree'
--- require 'kickstart.plugins.gitsigns' -- Adds gitsigns and recommended keymaps
+  -- Next step: Add/configure plugins for Kickstart
+  -- Uncomment any plugin below to enable (restart nvim after).
+  require 'kickstart.plugins.autopairs',
+  -- require 'kickstart.plugins.debug'
+  -- require 'kickstart.plugins.indent_line'
+  -- require 'kickstart.plugins.lint'
+  -- require 'kickstart.plugins.neo-tree'
+  -- require 'kickstart.plugins.gitsigns' -- Adds gitsigns and recommended keymaps
 
--- The import below loads plugins from `lua/custom/plugins/*.lua`
--- { import = 'custom.plugins' }
+  -- The import below loads plugins from `lua/custom/plugins/*.lua`
+  -- { import = 'custom.plugins' }
 
--- See `:help lazy.nvim-🔌-plugin-spec` for more info, or use Telescope: 
--- `<space>sh` then `lazy.nvim-plugin`, and continue with `<space>sr`
-
-},
-
-{ -- Use default icons for Nerd Font, else define custom unicode icons.
+  -- See `:help lazy.nvim-🔌-plugin-spec` for more info, or use Telescope:
+  -- `<space>sh` then `lazy.nvim-plugin`, and continue with `<space>sr`
+}, { -- Use default icons for Nerd Font, else define custom unicode icons.
   ui = {
     icons = vim.g.have_nerd_font and {} or {
       cmd = '⌘',
