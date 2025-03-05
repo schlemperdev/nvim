@@ -165,9 +165,11 @@ require('lazy').setup({
     },
     config = function()
       -- Configure Telescope extensions
-      extensions = {
-        ['ui-select'] = {
-          require('telescope.themes').get_dropdown(),
+      require('telescope').setup {
+        extensions = {
+          ['ui-select'] = {
+            require('telescope.themes').get_dropdown(),
+          },
         },
       }
 
@@ -531,6 +533,7 @@ require('lazy').setup({
       statusline.setup { use_icons = vim.g.have_nerd_font }
 
       -- Customize location display: LINE:COLUMN
+      ---@diagnostic disable-next-line: duplicate-set-field
       statusline.section_location = function()
         return '%2l:%-2v'
       end
