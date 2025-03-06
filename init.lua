@@ -76,13 +76,36 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 
 require('lazy').setup({
-  opts = {
-    install = { colorscheme = { 'catppuccin' } },
-  },
+  install = { colorscheme = { 'catppuccin' } },
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
-  -- Adds git related signs to the gutter, as well as utilities for managing changes
-  {
+  { -- Navigate on TMUX
+    'christoomey/vim-tmux-navigator',
+    cmd = {
+      'TmuxNavigateLeft',
+      'TmuxNavigateDown',
+      'TmuxNavigateUp',
+      'TmuxNavigateRight',
+      'TmuxNavigatePrevious',
+      'TmuxNavigatorProcessList',
+    },
+    keys = {
+      { '<c-h>', '<cmd><C-U>TmuxNavigateLeft<cr>' },
+      { '<c-j>', '<cmd><C-U>TmuxNavigateDown<cr>' },
+      { '<c-k>', '<cmd><C-U>TmuxNavigateUp<cr>' },
+      { '<c-l>', '<cmd><C-U>TmuxNavigateRight<cr>' },
+      { '<c-\\>', '<cmd><C-U>TmuxNavigatePrevious<cr>' },
+    },
+  },
+
+  { -- Toggle comments
+    'numToStr/Comment.nvim',
+    config = function()
+      require('Comment').setup()
+    end,
+  },
+
+  { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
       signs = {
@@ -351,7 +374,24 @@ require('lazy').setup({
 
       -- Define LSP servers to install and configure
       local servers = {
-        basedpyright = {},
+        pyright = {
+          settings = {
+            python = {
+              analysis = {
+                typeCheckingMode = 'basic',
+                autoImportCompletions = true,
+                useLibraryCodeForTypes = true,
+                diagnosticMode = 'workspace',
+              },
+            },
+          },
+        },
+        ruff_lsp = {
+          on_attach = function(client, bufnr)
+            -- Disable pyright linting (reduntant with ruff)
+            client.server_capabilities.diagnosticProvider = false
+          end,
+        },
         lua_ls = {
           settings = {
             Lua = {
