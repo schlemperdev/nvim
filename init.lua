@@ -386,12 +386,12 @@ require('lazy').setup({
             },
           },
         },
-        ruff_lsp = {
-          on_attach = function(client, bufnr)
-            -- Disable pyright linting (reduntant with ruff)
-            client.server_capabilities.diagnosticProvider = false
-          end,
-        },
+        -- ruff_lsp = {
+        --   on_attach = function(client, bufnr)
+        --     -- Disable pyright linting (reduntant with ruff)
+        --     client.server_capabilities.diagnosticProvider = false
+        --   end,
+        -- },
         lua_ls = {
           settings = {
             Lua = {
